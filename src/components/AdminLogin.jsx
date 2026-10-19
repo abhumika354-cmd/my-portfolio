@@ -2,6 +2,8 @@
 import { useState } from "react";
 import "./Admin.css";
 
+const API_URL = "/api";
+
 function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -10,31 +12,58 @@ function AdminLogin() {
 
   async function handleLogin(event) {
     event.preventDefault();
+
+    if (loading) return;
+
     setError("");
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
+      const response = await fetch(`${API_URL}/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          password,
+        }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Login failed.");
+        if (response.status === 404) {
+          throw new Error(
+            "Login API route not found. Please check the backend admin login route."
+          );
+        }
+
+        if (response.status >= 500) {
+          throw new Error(
+            "Server error. Please check the backend logs and try again."
+          );
+        }
+
+        throw new Error(data.message || "Invalid username or password.");
+      }
+
+      if (!data.token) {
+        throw new Error(
+          "Login response did not include an authentication token."
+        );
       }
 
       sessionStorage.setItem("adminToken", data.token);
-      window.location.href = "/admin/dashboard";
+
+      window.location.replace("/admin/dashboard");
     } catch (err) {
+      console.error("Admin login error:", err);
+
       setError(
         err.message === "Failed to fetch"
-          ? "Backend is not running. Please start the backend."
-          : err.message
+          ? "Unable to connect to the live backend. Please try again."
+          : err.message || "Login failed. Please try again."
       );
     } finally {
       setLoading(false);
@@ -47,13 +76,16 @@ function AdminLogin() {
         <div className="admin-icon">🔐</div>
 
         <p className="admin-eyebrow">PORTFOLIO CONTROL PANEL</p>
+
         <h1>Admin Login</h1>
+
         <p className="admin-description">
           Sign in to manage your portfolio.
         </p>
 
         <form className="admin-form" onSubmit={handleLogin}>
           <label htmlFor="admin-username">Username</label>
+
           <input
             id="admin-username"
             type="text"
@@ -63,9 +95,11 @@ function AdminLogin() {
             onChange={(event) => setUsername(event.target.value)}
             maxLength={100}
             required
+            disabled={loading}
           />
 
           <label htmlFor="admin-password">Password</label>
+
           <input
             id="admin-password"
             type="password"
@@ -75,6 +109,7 @@ function AdminLogin() {
             onChange={(event) => setPassword(event.target.value)}
             maxLength={128}
             required
+            disabled={loading}
           />
 
           {error && (
