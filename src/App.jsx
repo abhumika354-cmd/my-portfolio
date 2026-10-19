@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import profile from "./assets/profile.jpg";
 import GlassScene from "./components/GlassScene";
@@ -515,7 +514,8 @@ function App() {
                     ))}
                   </div>
 
-                  {project.project_link ? (
+                  {/* Show the link only when a project URL exists */}
+                  {project.project_link && (
                     <a
                       className="project-status"
                       href={project.project_link}
@@ -524,10 +524,6 @@ function App() {
                     >
                       View Project ↗
                     </a>
-                  ) : (
-                    <span className="project-status">
-                      Student Project
-                    </span>
                   )}
                 </article>
               );
