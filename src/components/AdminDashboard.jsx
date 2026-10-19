@@ -1,8 +1,8 @@
-
 import { useCallback, useEffect, useState } from "react";
 import "./Admin.css";
 
-const API_URL = "http://localhost:5000/api";
+// Relative API URL works on localhost and the deployed Netlify site.
+const API_URL = "/api";
 
 const emptyProject = {
   title: "",
@@ -533,7 +533,6 @@ function AdminDashboard() {
                     />
                   </label>
 
-                  {/* LIVE IMAGE PREVIEW */}
                   {projectForm.image_url.trim() && (
                     <div style={{ gridColumn: "1 / -1" }}>
                       <h3 style={{ marginBottom: "8px" }}>
@@ -542,7 +541,7 @@ function AdminDashboard() {
 
                       {imagePreviewError ? (
                         <p role="alert" style={{ color: "#fca5a5" }}>
-                          Image not found. check the URL and paste a direct
+                          Image not found. Check the URL and paste a direct
                           image link.
                         </p>
                       ) : (
@@ -601,10 +600,7 @@ function AdminDashboard() {
                     {projects.map((project) => (
                       <article
                         key={project.id}
-                        style={{
-                          ...styles.panel,
-                          marginBottom: 0,
-                        }}
+                        style={{ ...styles.panel, marginBottom: 0 }}
                       >
                         {project.image_url && (
                           <img
@@ -711,10 +707,7 @@ function AdminDashboard() {
                   {messages.map((message) => (
                     <article
                       key={message.id}
-                      style={{
-                        ...styles.panel,
-                        marginBottom: 0,
-                      }}
+                      style={{ ...styles.panel, marginBottom: 0 }}
                     >
                       <h3>{message.name}</h3>
 

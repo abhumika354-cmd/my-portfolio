@@ -23,7 +23,7 @@ const profileLinks = {
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Projects loaded from MySQL through the backend API
+  // Projects loaded from the backend API
   const [projects, setProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [projectsError, setProjectsError] = useState("");
@@ -43,7 +43,6 @@ function App() {
 
   // Fetch projects from the backend
   useEffect(() => {
-    // Avoid unnecessary public API requests on admin pages
     const path = window.location.pathname;
 
     if (path === "/admin/login" || path === "/admin/dashboard") {
@@ -55,9 +54,7 @@ function App() {
 
     const fetchProjects = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:5000/api/projects"
-        );
+        const response = await fetch("/api/projects");
 
         if (!response.ok) {
           throw new Error("Failed to load projects");
@@ -78,7 +75,7 @@ function App() {
 
         if (active) {
           setProjectsError(
-            "Projects could not be loaded. Please check that the backend server is running."
+            "Projects could not be loaded. Please check the backend connection."
           );
         }
       } finally {
@@ -119,20 +116,17 @@ function App() {
     setContactStatus({ type: "", message: "" });
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/contact",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: contactForm.name.trim(),
-            email: contactForm.email.trim(),
-            message: contactForm.message.trim(),
-          }),
-        }
-      );
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: contactForm.name.trim(),
+          email: contactForm.email.trim(),
+          message: contactForm.message.trim(),
+        }),
+      });
 
       const data = await response.json();
 
@@ -167,7 +161,6 @@ function App() {
   };
 
   // Admin page routing
-  // Keep these checks after all hooks and before the public portfolio return.
   const currentPath = window.location.pathname;
 
   if (currentPath === "/admin/login") {
@@ -178,7 +171,7 @@ function App() {
     return <AdminDashboard />;
   }
 
-  // Public portfolio starts here
+  // Public portfolio
   return (
     <main>
       {/* NAVBAR */}
@@ -444,7 +437,7 @@ function App() {
         </p>
       </section>
 
-      {/* PROJECTS SECTION — DATA FROM MYSQL API */}
+      {/* PROJECTS SECTION */}
       <section className="portfolio-section" id="projects">
         <span className="section-eyebrow">03 — MY PROJECTS</span>
 
@@ -482,9 +475,9 @@ function App() {
 
               const techStack = project.tech_stack
                 ? project.tech_stack
-                  .split(",")
-                  .map((tech) => tech.trim())
-                  .filter(Boolean)
+                    .split(",")
+                    .map((tech) => tech.trim())
+                    .filter(Boolean)
                 : [];
 
               return (
@@ -497,11 +490,13 @@ function App() {
                         className="project-image"
                         loading="lazy"
                         onError={(event) => {
-                          event.currentTarget.parentElement.style.display = "none";
+                          event.currentTarget.parentElement.style.display =
+                            "none";
                         }}
                       />
                     </div>
                   )}
+
                   <div className="project-number">
                     PROJECT {String(index + 1).padStart(2, "0")}
                   </div>
@@ -545,7 +540,7 @@ function App() {
         </p>
       </section>
 
-      {/* CONTACT SECTION — SAVES MESSAGES TO MYSQL */}
+      {/* CONTACT SECTION */}
       <section
         className="portfolio-section alternate-section"
         id="contact"
@@ -632,10 +627,11 @@ function App() {
 
             {contactStatus.message && (
               <p
-                className={`contact-form-status ${contactStatus.type === "success"
+                className={`contact-form-status ${
+                  contactStatus.type === "success"
                     ? "contact-success"
                     : "contact-error"
-                  }`}
+                }`}
                 role="status"
                 aria-live="polite"
               >
